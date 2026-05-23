@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>KR Earn - WhatsApp Earning App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary: #0F172A;
+            --secondary: #1E293B;
+            --accent: #FACC15;
+            --success: #10B981;
+            --danger: #EF4444;
+            --text: #E2E8F0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(250, 204, 21, 0.2);
+            border-radius: 20px;
+        }
+        .btn-accent {
+            background: var(--accent);
+            color: var(--primary);
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .btn-outline-accent {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: transparent;
+            border-radius: 12px;
+            padding: 10px;
+        }
+        .code-box {
+            background: var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1.8rem;
+            letter-spacing: 8px;
+            text-align: center;
+            border: 1px dashed var(--accent);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .status-active { background: var(--success); color: #fff; }
+        .status-pending { background: #F59E0B; color: #000; }
+        .status-inactive { background: var(--danger); color: #fff; }
+        .promo-banner {
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+            border-radius: 16px;
+            padding: 0;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid var(--accent);
+        }
+        .promo-banner img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--secondary);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            border-top: 1px solid rgba(250, 204, 21, 0.3);
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            color: #94A3B8;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 1.5rem; display: block; }
+        .section { display: none; animation: fadeIn 0.3s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .timer { font-size: 2.5rem; font-weight: 800; font-family: monospace; color: var(--accent); }
+        .chat-container { max-height: 400px; overflow-y: auto; }
+        .chat-bubble {
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            max-width: 80%;
+        }
+        .chat-user { background: var(--primary); color: var(--text); align-self: flex-start; }
+        .chat-admin { background: var(--accent); color: var(--primary); align-self: flex-end; margin-left: auto; }
+        .admin-control {
+            background: var(--secondary);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login/Signup Section -->
+<div id="authSection" class="container" style="max-width: 450px; margin-top: 10vh;">
+    <div class="glass-card p-4 text-center">
+        <img src="https://i.ibb.co/fGCnWrVR/Gemini-Generated-Image-r0kkcsr0kkcsr0kk.png" width="80" class="rounded-circle mb-3">
+        <h2 class="mb-2">KR Earn</h2>
+        <p class="text-muted small">Earn ₹200 per active hour on WhatsApp</p>
+        
+        <div id="loginForm">
+            <div class="mb-3">
+                <input type="email" id="loginEmail" class="form-control" placeholder="Email Address">
+            </div>
+            <div class="mb-3">
+                <input type="password" id="loginPassword" class="form-control" placeholder="Password">
+            </div>
+            <button class="btn btn-accent w-100 mb-2" id="loginBtn">Login</button>
+            <button class="btn btn-outline-accent w-100" id="showSignupBtn">Create New Account</button>
+        </div>
+        
+        <div id="signupForm" style="display: none;">
+            <div class="mb-2">
+                <input type="text" id="signupName" class="form-control" placeholder="Full Name">
+            </div>
+            <div class="mb-2">
+                <input type="email" id="signupEmail" class="form-control" placeholder="Email Address">
+            </div>
+            <div class="mb-2">
+                <input type="tel" id="signupWhatsapp" class="form-control" placeholder="WhatsApp Number">
+            </div>
+            <div class="mb-2">
+                <input type="password" id="signupPassword" class="form-control" placeholder="Password (min 6 chars)">
+            </div>
+            <button class="btn btn-accent w-100 mb-2" id="signupBtn">Sign Up</button>
+            <button class="btn btn-outline-accent w-100" id="showLoginBtn">Back to Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- User Dashboard -->
+<div id="dashboardSection" style="display: none;">
+    <!-- Header -->
+    <div class="container mt-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">Welcome, <span id="userName">User</span></h5>
+                <small class="text-muted" id="userEmail"></small>
+            </div>
+            <div class="text-end">
+                <small class="text-muted">Balance</small>
+                <h4 class="text-accent mb-0" id="userBalance">₹0</h4>
+            </div>
+        </div>
+        <hr class="border-secondary">
+    </div>
+
+    <!-- Promotion Banner -->
+    <div class="container mb-3">
+        <div class="promo-banner" id="promoBanner">
+            <img src="https://via.placeholder.com/400x120/1E293B/FACC15?text=KR+Earn+Promo" alt="Promo" id="promoImage">
+        </div>
+    </div>
+
+    <!-- WhatsApp Status Card -->
+    <div class="container mb-4">
+        <div class="glass-card p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="bi bi-whatsapp fs-2 text-success"></i>
+                    <h6 class="mt-1">WhatsApp Status</h6>
+                </div>
+                <div>
+                    <span class="status-badge" id="whatsappStatusBadge">Not Connected</span>
+                </div>
+            </div>
+            <div id="whatsappInfo" class="mt-2">
+                <p class="small text-muted mb-1" id="whatsappNumber">No number linked</p>
+            </div>
+            <button class="btn btn-accent w-100 mt-2" id="connectWhatsappBtn">
+                <i class="bi bi-whatsapp"></i> Connect WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- WhatsApp Linking Modal -->
+    <div class="modal fade" id="whatsappModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-whatsapp text-success"></i> Connect WhatsApp</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="step1">
+                        <label class="form-label">Enter WhatsApp Number</label>
+                        <input type="tel" id="whatsappNumberInput" class="form-control mb-3" placeholder="+91 XXXXXXXXXX">
+                        <button class="btn btn-accent w-100" id="sendCodeBtn">Send Linking Code</button>
+                    </div>
+                    <div id="step2" style="display: none;">
+                        <p class="small text-muted">Your linking code is:</p>
+                        <div class="code-box mb-3" id="linkingCode">AAAA-AAAA</div>
+                        <p class="small text-muted">1. Open WhatsApp on your phone</p>
+                        <p class="small text-muted">2. Go to Settings → Linked Devices → Link a Device</p>
+                        <p class="small text-muted">3. Enter this code when prompted</p>
+                        <button class="btn btn-outline-accent w-100 mt-2" id="copyCodeBtn">
+                            <i class="bi bi-clipboard"></i> Copy Code
+                        </button>
+                        <div class="alert alert-info mt-3 small" id="codeStatusMsg">
+                            ⏳ Waiting for admin verification...
+                        </div>
+                    </div>
+                    <!-- Tutorial Video Section -->
+                    <div class="mt-3" id="tutorialVideoDiv">
+                        <hr>
+                        <p class="small text-muted">How to connect:</p>
+                        <div id="tutorialVideoContainer">
+                            <iframe id="tutorialIframe" width="100%" height="200" src="" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Earning Section (shows only when active) -->
+    <div class="container mb-4" id="earningSection" style="display: none;">
+        <div class="glass-card p-4 text-center">
+            <i class="bi bi-whatsapp fs-1 text-success"></i>
+            <h4 class="mt-2">WhatsApp Active</h4>
+            <p class="small text-muted">Earning ₹200 per hour</p>
+            <div class="timer" id="timer">00:00:00</div>
+            <div class="mt-3">
+                <span class="text-muted">Timer controlled by admin</span>
+            </div>
+            <div class="mt-2 small text-success" id="sessionEarned">Earned this session: ₹0</div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="container">
+        <div class="row g-3 mb-4">
+            <div class="col-4">
+                <div class="glass-card p-3 text-center">
+                    <i class="bi bi-clock-history fs-2"></i>
+                    <h3 class="amount" id="totalHours">0</h3>
+                    <small>Total Hours</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="glass-card p-3 text-center">
+                    <i class="bi bi-cash-stack fs-2"></i>
+                    <h3 class="amount" id="totalEarned">₹0</h3>
+                    <small>Total Earned</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="glass-card p-3 text-center">
+                    <i class="bi bi-star-fill fs-2 text-warning"></i>
+                    <h3 class="amount" id="todayEarned">₹0</h3>
+                    <small>Today</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav-bottom">
+        <div class="nav-item active" data-tab="home"><i class="bi bi-house-door-fill"></i><small>Home</small></div>
+        <div class="nav-item" data-tab="withdraw"><i class="bi bi-cash-coin"></i><small>Withdraw</small></div>
+        <div class="nav-item" data-tab="history"><i class="bi bi-clock-history"></i><small>History</small></div>
+        <div class="nav-item" data-tab="support"><i class="bi bi-chat-dots"></i><small>Support</small></div>
+        <div class="nav-item" data-tab="profile"><i class="bi bi-person-fill"></i><small>Profile</small></div>
+    </div>
+
+    <!-- Tab: Home -->
+    <div id="homeTab" class="section active container mt-3">
+        <div class="glass-card p-3">
+            <h6><i class="bi bi-info-circle"></i> How to Earn?</h6>
+            <ul class="small text-muted mt-2">
+                <li>1. Connect your WhatsApp using the code</li>
+                <li>2. Get approval from admin</li>
+                <li>3. Admin will start your timer</li>
+                <li>4. After each hour, ₹200 credited automatically</li>
+                <li>5. Minimum withdrawal ₹<span id="minWithdrawDisplay">100</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tab: Withdraw -->
+    <div id="withdrawTab" class="section container mt-3">
+        <h5 class="mb-3">Withdraw Funds</h5>
+        <div class="glass-card p-3 mb-3">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Available Balance:</span>
+                <strong class="text-success" id="withdrawBalance">₹0</strong>
+            </div>
+            <div class="mb-3">
+                <label class="small text-muted">Amount (Min ₹<span id="minWithdrawValue">100</span>)</label>
+                <input type="number" id="withdrawAmount" class="form-control mt-1">
+            </div>
+            <div class="mb-3">
+                <label class="small text-muted">Withdrawal Method</label>
+                <select id="withdrawMethod" class="form-select mt-1">
+                    <option value="">Select Method</option>
+                    <option value="googleplay">🎮 Google Play Redeem Code</option>
+                    <option value="amazonpay">🛍️ Amazon Pay Voucher</option>
+                    <option value="upi">🏦 UPI Transfer</option>
+                </select>
+            </div>
+            <div id="upiField" style="display: none;" class="mb-3">
+                <label class="small text-muted">UPI ID</label>
+                <input type="text" id="upiId" class="form-control mt-1" placeholder="example@okhdfcbank">
+            </div>
+            <button class="btn btn-accent w-100" id="withdrawBtn">Request Withdrawal</button>
+        </div>
+        <div class="glass-card p-3">
+            <h6><i class="bi bi-clock-history"></i> Withdrawal History</h6>
+            <div id="withdrawHistoryList" class="mt-2"><div class="text-center text-muted py-2">No withdrawals yet</div></div>
+        </div>
+    </div>
+
+    <!-- Tab: History -->
+    <div id="historyTab" class="section container mt-3">
+        <h5 class="mb-3">Earning History</h5>
+        <div id="earningsList" class="mb-3"><div class="text-center text-muted py-3">No earnings yet</div></div>
+    </div>
+
+    <!-- Tab: Support (Chat) -->
+    <div id="supportTab" class="section container mt-3">
+        <div class="glass-card p-3">
+            <h5><i class="bi bi-headset"></i> Support Chat</h5>
+            <div class="chat-container" id="chatContainer" style="height: 400px; overflow-y: auto; display: flex; flex-direction: column;">
+                <div class="text-center text-muted py-3">Loading messages...</div>
+            </div>
+            <div class="input-group mt-3">
+                <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+                <button class="btn btn-accent" id="sendChatBtn"><i class="bi bi-send"></i></button>
+            </div>
+            <p class="small text-muted mt-2">Admin will respond within 24 hours</p>
+        </div>
+    </div>
+
+    <!-- Tab: Profile -->
+    <div id="profileTab" class="section container mt-3">
+        <div class="glass-card p-4 text-center">
+            <img src="https://ui-avatars.com/api/?background=FACC15&color=0F172A&bold=true" width="80" class="rounded-circle mb-3">
+            <h5 id="profileName">User Name</h5>
+            <p class="text-muted small" id="profileEmail">user@example.com</p>
+            <p class="text-muted small"><i class="bi bi-whatsapp"></i> <span id="profileWhatsapp">Not set</span></p>
+            <hr>
+            <div class="text-start">
+                <p><strong>Total Earned:</strong> <span id="profileEarned">₹0</span></p>
+                <p><strong>Total Hours:</strong> <span id="profileHours">0</span></p>
+                <p><strong>Member Since:</strong> <span id="profileJoined">-</span></p>
+            </div>
+            <button class="btn btn-danger w-100 mt-3" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, get, set, update, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAOtQWQtqxaSmXNbHXvG-aTx-GoUENs9Jw",
+        authDomain: "kr-earn.firebaseapp.com",
+        projectId: "kr-earn",
+        storageBucket: "kr-earn.firebasestorage.app",
+        messagingSenderId: "941441775709",
+        appId: "1:941441775709:web:43d1f1b21ef8b8cebfb5b4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+    let userData = null;
+    let sessionRef = null;
+    let timerInterval = null;
+
+    // Helper functions
+    const formatCurrency = (amt) => `₹${Number(amt || 0).toFixed(2)}`;
+    const formatDate = (ts) => new Date(ts).toLocaleString();
+
+    // Load settings from Firebase
+    async function loadSettings() {
+        const settingsSnap = await get(ref(db, 'appSettings'));
+        if (settingsSnap.exists()) {
+            const settings = settingsSnap.val();
+            document.getElementById('minWithdrawDisplay').innerText = settings.minWithdrawal || 100;
+            document.getElementById('minWithdrawValue').innerText = settings.minWithdrawal || 100;
+            
+            // Promotion banner
+            if (settings.promotion) {
+                if (settings.promotion.imageUrl) document.getElementById('promoImage').src = settings.promotion.imageUrl;
+                const banner = document.getElementById('promoBanner');
+                banner.onclick = () => { if (settings.promotion.linkUrl) window.open(settings.promotion.linkUrl, '_blank'); };
+            }
+            
+            // Tutorial video
+            if (settings.tutorialVideo) {
+                document.getElementById('tutorialIframe').src = settings.tutorialVideo;
+            }
+        }
+    }
+
+    // Update UI
+    function updateUI() {
+        if (!userData) return;
+        document.getElementById('userName').innerText = userData.displayName;
+        document.getElementById('userEmail').innerText = userData.email;
+        document.getElementById('userBalance').innerHTML = formatCurrency(userData.balance);
+        document.getElementById('totalHours').innerText = userData.totalHours || 0;
+        document.getElementById('totalEarned').innerHTML = formatCurrency(userData.totalEarned);
+        document.getElementById('todayEarned').innerHTML = formatCurrency(userData.todayEarned || 0);
+        document.getElementById('withdrawBalance').innerHTML = formatCurrency(userData.balance);
+        document.getElementById('profileName').innerText = userData.displayName;
+        document.getElementById('profileEmail').innerText = userData.email;
+        document.getElementById('profileWhatsapp').innerText = userData.whatsapp || 'Not set';
+        document.getElementById('profileEarned').innerHTML = formatCurrency(userData.totalEarned);
+        document.getElementById('profileHours').innerText = userData.totalHours || 0;
+        document.getElementById('profileJoined').innerText = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : '-';
+        
+        const isActive = userData.whatsappActive === true;
+        const badge = document.getElementById('whatsappStatusBadge');
+        if (userData.whatsapp && isActive) {
+            badge.className = 'status-badge status-active';
+            badge.innerText = 'Active ✅';
+            document.getElementById('earningSection').style.display = 'block';
+        } else if (userData.whatsapp && !isActive) {
+            badge.className = 'status-badge status-pending';
+            badge.innerText = 'Pending Verification ⏳';
+            document.getElementById('earningSection').style.display = 'none';
+        } else {
+            badge.className = 'status-badge status-inactive';
+            badge.innerText = 'Not Connected ❌';
+            document.getElementById('earningSection').style.display = 'none';
+        }
+        document.getElementById('whatsappNumber').innerHTML = userData.whatsapp ? `<i class="bi bi-whatsapp"></i> ${userData.whatsapp}` : '<span class="text-muted">No number linked</span>';
+    }
+
+    // Listen to session timer from Firebase
+    function listenToSession() {
+        if (!currentUser) return;
+        sessionRef = ref(db, `users/${currentUser.uid}/session`);
+        onValue(sessionRef, (snapshot) => {
+            const session = snapshot.val();
+            if (session && session.isActive && session.startTime) {
+                const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
+                const hours = elapsed / 3600;
+                const earnedThisSession = hours * 200;
+                const hrs = Math.floor(elapsed / 3600);
+                const mins = Math.floor((elapsed % 3600) / 60);
+                const secs = elapsed % 60;
+                document.getElementById('timer').innerText = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                document.getElementById('sessionEarned').innerHTML = `Earned this session: ${formatCurrency(earnedThisSession)}`;
+                if (hours >= 1) {
+                    // Refresh user data to check if hour was credited
+                    get(ref(db, `users/${currentUser.uid}`)).then(snap => {
+                        if (snap.exists()) userData = snap.val();
+                        updateUI();
+                    });
+                }
+            } else {
+                document.getElementById('timer').innerText = '00:00:00';
+                document.getElementById('sessionEarned').innerHTML = 'Earned this session: ₹0';
+            }
+        });
+    }
+
+    // Load earnings history
+    function loadEarningsHistory() {
+        if (!currentUser) return;
+        get(ref(db, `users/${currentUser.uid}/earnings`)).then(snapshot => {
+            const container = document.getElementById('earningsList');
+            if (!snapshot.exists()) {
+                container.innerHTML = '<div class="text-center text-muted py-3">No earnings yet</div>';
+                return;
+            }
+            const earnings = [];
+            snapshot.forEach(e => earnings.push({ id: e.key, ...e.val() }));
+            earnings.sort((a,b) => b.timestamp - a.timestamp);
+            let html = '';
+            earnings.slice(0, 20).forEach(e => {
+                html += `<div class="glass-card p-2 mb-2"><div class="d-flex justify-content-between"><span>${formatDate(e.timestamp)}</span><span class="text-success">+${formatCurrency(e.amount)}</span></div><small class="text-muted">${e.hours} hours completed</small></div>`;
+            });
+            container.innerHTML = html;
+        });
+    }
+
+    // Load withdrawal history
+    function loadWithdrawalHistory() {
+        if (!currentUser) return;
+        get(ref(db, `users/${currentUser.uid}/withdrawals`)).then(snapshot => {
+            const container = document.getElementById('withdrawHistoryList');
+            if (!snapshot.exists()) {
+                container.innerHTML = '<div class="text-center text-muted py-2">No withdrawals yet</div>';
+                return;
+            }
+            let html = '';
+            snapshot.forEach(w => {
+                const wd = w.val();
+                let statusClass = wd.status === 'completed' ? 'text-success' : (wd.status === 'rejected' ? 'text-danger' : 'text-warning');
+                html += `<div class="d-flex justify-content-between border-bottom border-secondary py-2"><span>${formatDate(wd.timestamp)}</span><span>${wd.method}</span><span class="${statusClass}">${wd.status}</span><span>${formatCurrency(wd.amount)}</span></div>`;
+            });
+            container.innerHTML = html;
+        });
+    }
+
+    // Load chat messages
+    function loadChatMessages() {
+        const chatRef = ref(db, 'chatMessages');
+        onValue(chatRef, (snapshot) => {
+            const container = document.getElementById('chatContainer');
+            if (!snapshot.exists()) {
+                container.innerHTML = '<div class="text-center text-muted py-3">No messages yet. Start a conversation!</div>';
+                return;
+            }
+            const messages = [];
+            snapshot.forEach(msg => messages.push({ id: msg.key, ...msg.val() }));
+            messages.sort((a,b) => a.timestamp - b.timestamp);
+            let html = '';
+            messages.forEach(msg => {
+                const isAdmin = msg.userId === 'admin';
+                html += `<div class="chat-bubble ${isAdmin ? 'chat-admin' : 'chat-user'}" style="max-width: 80%; ${isAdmin ? 'align-self: flex-end; margin-left: auto;' : ''}">
+                    <small><strong>${msg.userName}</strong></small>
+                    <p class="mb-0 small">${msg.message}</p>
+                    <small class="text-muted" style="font-size: 10px;">${formatDate(msg.timestamp)}</small>
+                </div>`;
+            });
+            container.innerHTML = html;
+            container.scrollTop = container.scrollHeight;
+        });
+    }
+
+    // Submit withdrawal
+    async function submitWithdrawal() {
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const method = document.getElementById('withdrawMethod').value;
+        const upiId = document.getElementById('upiId').value;
+        
+        const settingsSnap = await get(ref(db, 'appSettings/minWithdrawal'));
+        const minWithdrawal = settingsSnap.val() || 100;
+        
+        if (!amount || amount < minWithdrawal) { Swal.fire('Error', `Minimum withdrawal amount is ₹${minWithdrawal}`, 'error'); return; }
+        if (!method) { Swal.fire('Error', 'Select withdrawal method', 'error'); return; }
+        if (method === 'upi' && !upiId) { Swal.fire('Error', 'Enter UPI ID', 'error'); return; }
+        if ((userData.balance || 0) < amount) { Swal.fire('Error', 'Insufficient balance', 'error'); return; }
+        
+        const newBalance = (userData.balance || 0) - amount;
+        await update(ref(db), {
+            [`users/${currentUser.uid}/balance`]: newBalance,
+            [`users/${currentUser.uid}/withdrawals/${Date.now()}`]: {
+                amount: amount,
+                method: method,
+                upiId: upiId || null,
+                status: 'pending',
+                timestamp: serverTimestamp()
+            }
+        });
+        
+        userData.balance = newBalance;
+        updateUI();
+        loadWithdrawalHistory();
+        Swal.fire('Success', 'Withdrawal request submitted!', 'success');
+        document.getElementById('withdrawAmount').value = '';
+        document.getElementById('withdrawMethod').value = '';
+        document.getElementById('upiField').style.display = 'none';
+    }
+
+    // Send chat message
+    async function sendChatMessage() {
+        const message = document.getElementById('chatInput').value.trim();
+        if (!message) return;
+        await push(ref(db, 'chatMessages'), {
+            userId: currentUser.uid,
+            userName: userData.displayName,
+            message: message,
+            timestamp: serverTimestamp(),
+            userEmail: currentUser.email
+        });
+        document.getElementById('chatInput').value = '';
+    }
+
+    // WhatsApp linking
+    let modal = null;
+    let currentRequestId = null;
+    let checkInterval = null;
+
+    document.getElementById('connectWhatsappBtn')?.addEventListener('click', () => {
+        modal = new bootstrap.Modal(document.getElementById('whatsappModal'));
+        modal.show();
+        document.getElementById('step1').style.display = 'block';
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('whatsappNumberInput').value = '';
+    });
+
+    document.getElementById('sendCodeBtn')?.addEventListener('click', async () => {
+        const whatsapp = document.getElementById('whatsappNumberInput').value.trim();
+        if (!whatsapp) {
+            Swal.fire('Error', 'Enter WhatsApp number', 'error');
+            return;
+        }
+        
+        // Get code from settings
+        const settingsSnap = await get(ref(db, 'appSettings/whatsappCode'));
+        const code = settingsSnap.val() || 'AAAA-AAAA';
+        document.getElementById('linkingCode').innerText = code;
+        
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        
+        // Create request
+        currentRequestId = 'req_' + Date.now();
+        await set(ref(db, `whatsappRequests/${currentRequestId}`), {
+            userId: currentUser.uid,
+            userName: userData.displayName,
+            userEmail: userData.email,
+            whatsapp: whatsapp,
+            code: code,
+            status: 'pending',
+            requestedAt: serverTimestamp()
+        });
+        
+        // Check for approval
+        if (checkInterval) clearInterval(checkInterval);
+        checkInterval = setInterval(async () => {
+            const reqSnap = await get(ref(db, `whatsappRequests/${currentRequestId}/status`));
+            const status = reqSnap.val();
+            if (status === 'approved') {
+                clearInterval(checkInterval);
+                userData.whatsapp = whatsapp;
+                userData.whatsappActive = true;
+                await update(ref(db), {
+                    [`users/${currentUser.uid}/whatsapp`]: whatsapp,
+                    [`users/${currentUser.uid}/whatsappActive`]: true
+                });
+                modal.hide();
+                Swal.fire('Approved!', 'Your WhatsApp has been activated!', 'success');
+                get(ref(db, `users/${currentUser.uid}`)).then(snap => { userData = snap.val(); updateUI(); });
+            } else if (status === 'rejected') {
+                clearInterval(checkInterval);
+                modal.hide();
+                Swal.fire('Rejected', 'Your request was rejected. Contact support.', 'error');
+            }
+        }, 5000);
+    });
+
+    document.getElementById('copyCodeBtn')?.addEventListener('click', () => {
+        const code = document.getElementById('linkingCode').innerText;
+        navigator.clipboard.writeText(code);
+        Swal.fire('Copied!', 'Code copied to clipboard', 'success');
+    });
+
+    // Tab navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const tab = item.dataset.tab;
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`${tab}Tab`).classList.add('active');
+            if (tab === 'history') { loadEarningsHistory(); }
+            if (tab === 'withdraw') { loadWithdrawalHistory(); }
+        });
+    });
+
+    document.getElementById('withdrawMethod')?.addEventListener('change', (e) => {
+        document.getElementById('upiField').style.display = e.target.value === 'upi' ? 'block' : 'none';
+    });
+
+    // Auth functions
+    document.getElementById('loginBtn')?.addEventListener('click', async () => {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    });
+
+    document.getElementById('showSignupBtn')?.addEventListener('click', () => {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('signupForm').style.display = 'block';
+    });
+
+    document.getElementById('showLoginBtn')?.addEventListener('click', () => {
+        document.getElementById('signupForm').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'block';
+    });
+
+    document.getElementById('signupBtn')?.addEventListener('click', async () => {
+        const name = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+        const whatsapp = document.getElementById('signupWhatsapp').value;
+        const password = document.getElementById('signupPassword').value;
+        
+        if (!name || !email || !whatsapp || !password) {
+            Swal.fire('Error', 'Please fill all fields', 'error'); return;
+        }
+        if (password.length < 6) {
+            Swal.fire('Error', 'Password must be at least 6 characters', 'error'); return;
+        }
+        
+        try {
+            const cred = await createUserWithEmailAndPassword(auth, email, password);
+            await set(ref(db, `users/${cred.user.uid}`), {
+                uid: cred.user.uid,
+                displayName: name,
+                email: email,
+                whatsapp: null,
+                whatsappActive: false,
+                balance: 0,
+                totalHours: 0,
+                totalEarned: 0,
+                todayEarned: 0,
+                createdAt: serverTimestamp()
+            });
+            Swal.fire('Success!', 'Account created!', 'success');
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    });
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        await signOut(auth);
+    });
+
+    document.getElementById('sendChatBtn')?.addEventListener('click', sendChatMessage);
+    document.getElementById('chatInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
+    document.getElementById('withdrawBtn')?.addEventListener('click', submitWithdrawal);
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUser = user;
+            const userSnap = await get(ref(db, `users/${user.uid}`));
+            userData = userSnap.val();
+            if (!userData) return;
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            updateUI();
+            loadSettings();
+            loadEarningsHistory();
+            loadWithdrawalHistory();
+            loadChatMessages();
+            listenToSession();
+        } else {
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            if (timerInterval) clearInterval(timerInterval);
+            currentUser = null;
+            userData = null;
+        }
+    });
+</script>
+</body>
+</html>
