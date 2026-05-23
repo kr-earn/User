@@ -10,31 +10,507 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary: #0F172A;
-            --secondary: #1E293B;
+            --primary: #FFFFFF;
+            --secondary: #F8FAFC;
             --accent: #FACC15;
-            --success: #10B981;
+            --accent-dark: #e5b800;
             --danger: #EF4444;
-            --text: #E2E8F0;
+            --text: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: #F1F5F9;
             color: var(--text);
             min-height: 100vh;
             padding-bottom: 80px;
         }
+        
+        /* Cards */
         .glass-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(250, 204, 21, 0.2);
+            background: var(--primary);
+            border: 1px solid var(--border);
             border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
+        
+        /* Buttons */
         .btn-accent {
             background: var(--accent);
-            color: var(--primary);
+            color: #1E293B;
             font-weight: 600;
+            border-radius: 12px;
+            padding: 12px;
+            border: none;
+        }
+        .btn-accent:hover {
+            background: var(--accent-dark);
+        }
+        .btn-outline-accent {
+            border: 1px solid var(--accent);
+            color: #1E293B;
+            background: transparent;
+            border-radius: 12px;
+            padding: 10px;
+        }
+        .btn-outline-accent:hover {
+            background: rgba(250, 204, 21, 0.1);
+        }
+        
+        /* Code Box */
+        .code-box {
+            background: #F8FAFC;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 1.8rem;
+            letter-spacing: 8px;
+            text-align: center;
+            border: 1px dashed var(--accent);
+            color: #1E293B;
+        }
+        
+        /* Status Badges - Yellow Theme */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .status-active { background: var(--accent); color: #1E293B; }
+        .status-pending { background: #F59E0B; color: #FFFFFF; }
+        .status-inactive { background: #E2E8F0; color: #64748B; }
+        
+        /* WhatsApp Icon */
+        .whatsapp-icon {
+            background: var(--accent);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .whatsapp-icon i {
+            font-size: 1.8rem;
+            color: #1E293B;
+        }
+        
+        /* WhatsApp Card */
+        .whatsapp-card {
+            background: #FFFFFF;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #E2E8F0;
+        }
+        
+        /* Stats Card */
+        .stat-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #E2E8F0;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 5px;
+        }
+        
+        /* Timer */
+        .timer {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: monospace;
+            color: var(--accent);
+        }
+        
+        /* Progress Bar */
+        .progress-bar-custom {
+            height: 6px;
+            background: #E2E8F0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+        
+        /* Nav Bottom */
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #FFFFFF;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            border-top: 1px solid #E2E8F0;
+            z-index: 1000;
+        }
+        .nav-item {
+            text-align: center;
+            color: #94A3B8;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 1.5rem; display: block; }
+        
+        /* Sections */
+        .section { display: none; animation: fadeIn 0.3s ease; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Chat */
+        .chat-container { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; }
+        .chat-bubble {
+            padding: 10px 15px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            max-width: 80%;
+        }
+        .chat-user { background: #F1F5F9; color: #1E293B; align-self: flex-start; }
+        .chat-admin { background: var(--accent); color: #1E293B; align-self: flex-end; margin-left: auto; }
+        
+        /* Modal */
+        .modal-content {
+            background: #FFFFFF;
+            color: #1E293B;
+            border-radius: 24px;
+        }
+        .modal-header {
+            border-bottom-color: #E2E8F0;
+        }
+        .modal-footer {
+            border-top-color: #E2E8F0;
+        }
+        
+        /* Form Controls */
+        .form-control, .form-select {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            color: #1E293B;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.2);
+        }
+        
+        /* Promotion Banner */
+        .promo-banner {
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #E2E8F0;
+        }
+        .promo-banner img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+        
+        /* Header Balance */
+        .balance-chip {
+            background: rgba(250, 204, 21, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: #1E293B;
+            font-weight: 600;
+        }
+        
+        /* Copy Button */
+        .copy-btn-custom {
+            background: var(--accent);
+            color: #1E293B;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        /* Alert Info */
+        .alert-info-custom {
+            background: rgba(250, 204, 21, 0.1);
+            color: #1E293B;
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+        }
+        
+        /* Login/Signup Card */
+        .login-card {
+            background: #FFFFFF;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+        
+        .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login/Signup Section -->
+<div id="authSection" class="container" style="max-width: 450px; margin-top: 8vh;">
+    <div class="login-card">
+        <div class="text-center">
+            <img src="https://i.ibb.co/fGCnWrVR/Gemini-Generated-Image-r0kkcsr0kkcsr0kk.png" width="70" class="rounded-circle mb-3">
+            <h2 class="mb-2" style="color: #1E293B;">KR Earn</h2>
+            <p class="text-muted small">Earn ₹200 per active hour on WhatsApp</p>
+        </div>
+        
+        <div id="loginForm">
+            <div class="mb-3">
+                <input type="email" id="loginEmail" class="form-control" placeholder="Email Address">
+            </div>
+            <div class="mb-3">
+                <input type="password" id="loginPassword" class="form-control" placeholder="Password">
+            </div>
+            <button class="btn btn-accent w-100 mb-2" id="loginBtn">Login</button>
+            <button class="btn btn-outline-accent w-100" id="showSignupBtn">Create New Account</button>
+        </div>
+        
+        <div id="signupForm" style="display: none;">
+            <div class="mb-2">
+                <input type="text" id="signupName" class="form-control" placeholder="Full Name">
+            </div>
+            <div class="mb-2">
+                <input type="email" id="signupEmail" class="form-control" placeholder="Email Address">
+            </div>
+            <div class="mb-2">
+                <input type="tel" id="signupWhatsapp" class="form-control" placeholder="WhatsApp Number">
+            </div>
+            <div class="mb-2">
+                <input type="password" id="signupPassword" class="form-control" placeholder="Password (min 6 chars)">
+            </div>
+            <button class="btn btn-accent w-100 mb-2" id="signupBtn">Sign Up</button>
+            <button class="btn btn-outline-accent w-100" id="showLoginBtn">Back to Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- User Dashboard -->
+<div id="dashboardSection" style="display: none;">
+    <!-- Header -->
+    <div class="container mt-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-0">Welcome, <span id="userName">User</span></h5>
+                <small class="text-muted" id="userEmail"></small>
+            </div>
+            <div class="balance-chip">
+                <i class="bi bi-wallet2 me-1"></i> ₹<span id="userBalance">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promotion Banner -->
+    <div class="container mt-3">
+        <div class="promo-banner" id="promoBanner">
+            <img src="https://via.placeholder.com/400x140/F8FAFC/E2E8F0?text=KR+Earn+Promo" alt="Promo" id="promoImage">
+        </div>
+    </div>
+
+    <!-- WhatsApp Status Card -->
+    <div class="container mt-3">
+        <div class="whatsapp-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="whatsapp-icon mb-2">
+                        <i class="bi bi-whatsapp"></i>
+                    </div>
+                    <h6 class="mb-0">WhatsApp Status</h6>
+                </div>
+                <div>
+                    <span class="status-badge" id="whatsappStatusBadge">Not Connected</span>
+                </div>
+            </div>
+            <div id="whatsappInfo" class="mt-3">
+                <p class="small text-muted mb-1" id="whatsappNumber">No number linked</p>
+            </div>
+            <button class="btn btn-accent w-100 mt-3" id="connectWhatsappBtn">
+                <i class="bi bi-whatsapp"></i> Connect WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- WhatsApp Linking Modal -->
+    <div class="modal fade" id="whatsappModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title"><i class="bi bi-whatsapp" style="color: #FACC15;"></i> Connect WhatsApp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="step1">
+                        <label class="form-label">Enter WhatsApp Number</label>
+                        <input type="tel" id="whatsappNumberInput" class="form-control mb-3" placeholder="+91 XXXXXXXXXX">
+                        <button class="btn btn-accent w-100" id="sendCodeBtn">Send Linking Code</button>
+                    </div>
+                    <div id="step2" style="display: none;">
+                        <p class="small text-muted mb-1">Your linking code is:</p>
+                        <div class="code-box mb-3" id="linkingCode">AAAA-AAAA</div>
+                        <div class="small text-muted mb-2">
+                            <p class="mb-1">1. Open WhatsApp on your phone</p>
+                            <p class="mb-1">2. Go to Settings → Linked Devices → Link a Device</p>
+                            <p class="mb-1">3. Enter this code when prompted</p>
+                        </div>
+                        <button class="btn btn-outline-accent w-100 mt-2" id="copyCodeBtn">
+                            <i class="bi bi-clipboard"></i> Copy Code
+                        </button>
+                        <div class="alert alert-info-custom mt-3 small" id="codeStatusMsg">
+                            <i class="bi bi-hourglass-split me-1"></i> Waiting for admin verification...
+                        </div>
+                    </div>
+                    <!-- Tutorial Video Section -->
+                    <div class="mt-3" id="tutorialVideoDiv">
+                        <hr>
+                        <p class="small text-muted">How to connect:</p>
+                        <div id="tutorialVideoContainer">
+                            <iframe id="tutorialIframe" width="100%" height="200" src="" frameborder="0" allowfullscreen style="border-radius: 12px;"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Earning Section -->
+    <div class="container mt-3" id="earningSection" style="display: none;">
+        <div class="whatsapp-card text-center">
+            <i class="bi bi-whatsapp fs-1" style="color: #FACC15;"></i>
+            <h4 class="mt-2">WhatsApp Active</h4>
+            <p class="small text-muted">Earning ₹200 per hour</p>
+            <div class="timer" id="timer">00:00:00</div>
+            <div class="progress-bar-custom mt-3">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="mt-2 small text-muted">
+                <i class="bi bi-shield-check"></i> Timer controlled by admin
+            </div>
+            <div class="mt-2 small fw-bold" style="color: #FACC15;" id="sessionEarned">Earned this session: ₹0</div>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="container mt-3">
+        <div class="row g-3">
+            <div class="col-4">
+                <div class="stat-card">
+                    <i class="bi bi-clock-history fs-4 text-muted"></i>
+                    <div class="stat-value" id="totalHours">0</div>
+                    <small class="text-muted">Total Hours</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card">
+                    <i class="bi bi-cash-stack fs-4 text-muted"></i>
+                    <div class="stat-value" id="totalEarned">₹0</div>
+                    <small class="text-muted">Total Earned</small>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="stat-card">
+                    <i class="bi bi-star-fill fs-4" style="color: #FACC15;"></i>
+                    <div class="stat-value" id="todayEarned">₹0</div>
+                    <small class="text-muted">Today</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav-bottom">
+        <div class="nav-item active" data-tab="home"><i class="bi bi-house-door-fill"></i><small>Home</small></div>
+        <div class="nav-item" data-tab="withdraw"><i class="bi bi-cash-coin"></i><small>Withdraw</small></div>
+        <div class="nav-item" data-tab="history"><i class="bi bi-clock-history"></i><small>History</small></div>
+        <div class="nav-item" data-tab="support"><i class="bi bi-chat-dots"></i><small>Support</small></div>
+        <div class="nav-item" data-tab="profile"><i class="bi bi-person-fill"></i><small>Profile</small></div>
+    </div>
+
+    <!-- Tab: Home -->
+    <div id="homeTab" class="section active container mt-3">
+        <div class="whatsapp-card">
+            <h6><i class="bi bi-info-circle" style="color: #FACC15;"></i> How to Earn?</h6>
+            <ul class="small text-muted mt-2">
+                <li>1. Connect your WhatsApp using the code</li>
+                <li>2. Get approval from admin</li>
+                <li>3. Admin will start your timer</li>
+                <li>4. After each hour, ₹200 credited automatically</li>
+                <li>5. Minimum withdrawal ₹<span id="minWithdrawDisplay">100</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tab: Withdraw -->
+    <div id="withdrawTab" class="section container mt-3">
+        <h5 class="mb-3">Withdraw Funds</h5>
+        <div class="whatsapp-card mb-3">
+            <div class="d-flex justify-content-between mb-3">
+                <span>Available Balance:</span>
+                <strong style="color: #FACC15;" id="withdrawBalance">₹0</strong>
+            </div>
+            <div class="mb-3">
+                <label class="small text-muted">Amount (Min ₹<span id="minWithdrawValue">100</span>)</label>
+                <input type="number" id="withdrawAmount" class="form-control mt-1">
+            </div>
+            <div class="mb-3">
+                <label class="small text-muted">Withdrawal Method</label>
+                <select id="withdrawMethod" class="form-select mt-1">
+                    <option value="">Select Method</option>
+                    <option value="googleplay">🎮 Google Play Redeem Code</option>
+                    <option value="amazonpay">🛍️ Amazon Pay Voucher</option>
+                    <option value="upi">🏦 UPI Transfer</option>
+                </select>
+            </div>
+            <div id="upiField" style="display: none;" class="mb-3">
+                <label class="small text-muted">UPI ID</label>
+                <input type="text" id="upiId" class="form-control mt-1" placeholder="example@okhdfcbank">
+            </div>
+            <button class="btn btn-accent w-100" id="withdrawBtn">Request Withdrawal</button>
+        </div>
+        <div class="whatsapp-card">
+            <h6><i class="bi bi-clock-history"></i> Withdrawal History</h6>
+            <div id="withdrawHistoryList" class="mt-2"><div class="text-center text-muted py-2">No withdrawals yet</div></div>
+        </div>
+    </div>
+
+    <!-- Tab: History -->
+    <div id="historyTab" class="section container mt-3">
+        <h5 class="mb-3">Earning History</h5>
+        <div id="earningsList" class="mb-3"><div class="text-center text-muted py-3">No earnings yet</div></div>
+    </div>
+
+    <!-- Tab: Support -->
+    <div id="supportTab" class="section container mt-3">
+        <div class="whatsapp-card">
+            <h5><i class="bi bi-headset"></i> Support Chat</h5>
+            <div class="chat-container" id="chatContainer" style="height: 400px; overflow-y: auto;">
+                <div class="text-center text-muted py-3">Loading messages...</div>
+            </div>
+            <div class="input-group mt-3">
+                <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+                <button class="btn btn-accent" id="sendChatBtn"><i class="bi bi-send"></i></button>
+            </div>
+            <p class="small text-muted mt-2">Admin will respond within 24 hours</p>
+        </div>
+              font-weight: 600;
             border-radius: 12px;
             padding: 12px;
         }
